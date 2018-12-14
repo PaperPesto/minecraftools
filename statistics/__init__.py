@@ -1,2 +1,6 @@
-print(f'Invoking __init__.py for {__name__}')
-A = ['quux', 'corge', 'grault']
+version = "beta"
+
+def getInfo():
+    return __name__ + " v " + version
+
+print(f'Invoking {getInfo()}')
