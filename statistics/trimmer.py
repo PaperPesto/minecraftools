@@ -45,7 +45,12 @@ if __name__ == "__main__":
             path = str(sys.argv[1])
             log.info("Reading file %s", path)
 
-            with open(path, "r") as f:
-                contents = f.read()
-                log.info("Correctly readed %d characters from file %s", len(contents), path)
-                trim(contents)
+            try:
+                with open(path, "r") as f:
+                    contents = f.read()
+                    log.info("Correctly readed %d characters from file %s", len(contents), path)
+                    trim(contents)
+            except Exception as e: # parent of IOError, OSError *and* WindowsError where available
+                print("exception type:", type(e))    # the exception instance
+                print("Exception arguments:", e.args)     # arguments stored in .args
+                print("Exception message:", e)
