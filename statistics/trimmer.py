@@ -1,8 +1,9 @@
 # "minecraft:jump": 173914 -> "jump: 173914"
 
-import json
 from io import open
 import logging
+import json
+from datetime import datetime
 
 
 # Configure logging
@@ -17,11 +18,24 @@ log.addHandler(streamHandler)
 
 def trim(rawStat):
     '''deleting \"minecraft:\" occurency'''
-    
+
     removeString = "minecraft:"
     newString = ""
     return rawStat.replace(removeString, newString)
 
+
+def addMetadata(jsonStats):
+    dictStat = json.loads(jsonStats)
+    #print(dictStat)
+    # print(dictStat["nome"])
+    for key in dictStat:
+        print(key, 'corresponds to', dictStat[key])
+    
+    metadata = {
+        "uploadDateTime": str(datetime.now())
+    }
+
+    print(metadata)
 
 
 if __name__ == "__main__":
@@ -29,13 +43,14 @@ if __name__ == "__main__":
     import sys
     import argparse
 
-    parser = argparse.ArgumentParser(description='Return nice and clean Minecraft json statistics')
-    parser.add_argument('sourcePath', metavar='sourcePath', type=str, help='the source path of raw json statistics')
-    parser.add_argument('targetPath', metavar='targetPath', type=str, help='the target path of clean json statistics')
-                        
-    # parser.add_argument('--sum', dest='accumulate', action='store_const',
-    #                     const=sum, default=max,
-    #                     help='sum the integers (default: find the max)')
+    parser = argparse.ArgumentParser(
+        description='Return nice and clean Minecraft json statistics')
+    parser.add_argument('sourcePath', metavar='sourcepath',
+                        type=str, help='the source path of raw json statistics')
+    parser.add_argument('targetPath', metavar='targetpath',
+                        type=str, help='the target path of clean json statistics')
+    parser.add_argument('--addMetadata', dest='addMetadataFlag', action='store_const',
+                        const=True, default=False, help='add metadata do json stats file')
 
     args = parser.parse_args()
 
@@ -43,23 +58,30 @@ if __name__ == "__main__":
     targetPath = args.targetPath
     log.info("Reading from file %s", sourcePath)
     log.info("Results will be written to %s", targetPath)
-    
-    # Read
+
+    # - Read
     try:
         with open(sourcePath, "r") as f:
             contents = f.read()
-            log.info("Correctly readed %d characters from file %s", len(contents), sourcePath)
+            log.info("Correctly readed %d characters from file %s",
+                     len(contents), sourcePath)
             cleanStats = trim(contents)
     except Exception as e:
         print("exception type:", type(e))
         print("Exception arguments:", e.args)
         print("Exception message:", e)
-    
-    # Write
+
+    # - Enrich json with metadata
+    if(args.addMetadataFlag):
+        log.info("Enriching json with metadata")
+        addMetadata(cleanStats)
+
+    # - Write
     try:
         with open(targetPath, "w") as f:
             contents = f.write(cleanStats)
-            log.info("Correctly writed %d characters to file %s", len(cleanStats), targetPath)
+            log.info("Correctly writed %d characters to file %s",
+                     len(cleanStats), targetPath)
     except Exception as e:
         print("exception type:", type(e))
         print("Exception arguments:", e.args)
