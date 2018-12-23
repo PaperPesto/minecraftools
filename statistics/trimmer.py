@@ -21,36 +21,46 @@ def trim(rawStat):
     removeString = "minecraft:"
     newString = ""
     return rawStat.replace(removeString, newString)
-    # trimmedString = rawStat.replace(removeString, newString)
-    # dictStat = json.loads(trimmedString)
-    # print(dictStat)
-    # print(dictStat["nome"])
 
-    # for key in dictStat:
-    #     print(key, 'corresponds to', dictStat[key])
 
 
 if __name__ == "__main__":
 
     import sys
+    import argparse
 
-    if len(sys.argv) == 1:
-        print("type help as argument")
-    elif len(sys.argv) > 1:
-        if sys.argv[1] == 'help':
-            print("Usage: $ python trimmer.py <arg1>")
-            print("<arg1>: path")
-        else:
-            # Argomenti passati -----
-            path = str(sys.argv[1])
-            log.info("Reading file %s", path)
+    parser = argparse.ArgumentParser(description='Return nice and clean Minecraft json statistics')
+    parser.add_argument('sourcePath', metavar='sourcePath', type=str, help='the source path of raw json statistics')
+    parser.add_argument('targetPath', metavar='targetPath', type=str, help='the target path of clean json statistics')
+                        
+    # parser.add_argument('--sum', dest='accumulate', action='store_const',
+    #                     const=sum, default=max,
+    #                     help='sum the integers (default: find the max)')
 
-            try:
-                with open(path, "r") as f:
-                    contents = f.read()
-                    log.info("Correctly readed %d characters from file %s", len(contents), path)
-                    trim(contents)
-            except Exception as e: # parent of IOError, OSError *and* WindowsError where available
-                print("exception type:", type(e))    # the exception instance
-                print("Exception arguments:", e.args)     # arguments stored in .args
-                print("Exception message:", e)
+    args = parser.parse_args()
+
+    sourcePath = args.sourcePath
+    targetPath = args.targetPath
+    log.info("Reading from file %s", sourcePath)
+    log.info("Results will be written to %s", targetPath)
+    
+    # Read
+    try:
+        with open(sourcePath, "r") as f:
+            contents = f.read()
+            log.info("Correctly readed %d characters from file %s", len(contents), sourcePath)
+            cleanStats = trim(contents)
+    except Exception as e:
+        print("exception type:", type(e))
+        print("Exception arguments:", e.args)
+        print("Exception message:", e)
+    
+    # Write
+    try:
+        with open(targetPath, "w") as f:
+            contents = f.write(cleanStats)
+            log.info("Correctly writed %d characters to file %s", len(cleanStats), targetPath)
+    except Exception as e:
+        print("exception type:", type(e))
+        print("Exception arguments:", e.args)
+        print("Exception message:", e)
