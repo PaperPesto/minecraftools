@@ -4,6 +4,7 @@ from io import open
 import logging
 import json
 from datetime import datetime
+import jsonTool
 
 
 # Configure logging
@@ -24,18 +25,12 @@ def trim(rawStat):
     return rawStat.replace(removeString, newString)
 
 
-def addMetadata(jsonStats):
-    dictStat = json.loads(jsonStats)
-    #print(dictStat)
-    # print(dictStat["nome"])
-    for key in dictStat:
-        print(key, 'corresponds to', dictStat[key])
-    
+def getMetadata():
     metadata = {
         "uploadDateTime": str(datetime.now())
     }
+    return metadata
 
-    print(metadata)
 
 
 if __name__ == "__main__":
@@ -71,10 +66,13 @@ if __name__ == "__main__":
         print("Exception arguments:", e.args)
         print("Exception message:", e)
 
-    # - Enrich json with metadata
+    # - Enrich
     if(args.addMetadataFlag):
         log.info("Enriching json with metadata")
-        addMetadata(cleanStats)
+
+        metadata = getMetadata()
+        newStats = jsonTool.mergeJson(json.loads(cleanStats), "metadata", metadata)
+        print(newStats)
 
     # - Write
     try:
