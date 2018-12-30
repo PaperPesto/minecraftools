@@ -1,40 +1,38 @@
 import logging
 import os
 
+# Configure logging
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
+streamHandler = logging.StreamHandler()
+formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+streamHandler.setFormatter(formatter)
+log.addHandler(streamHandler)
+# ---
+
 class Player:
     """Minecraft statistics from a player"""
-
     def __init__(self, path):
-        # Configure logging
-        self.log = logging.getLogger(__name__)
-        self.log.setLevel(logging.DEBUG)
-        streamHandler = logging.StreamHandler()
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        streamHandler.setFormatter(formatter)
-        self.log.addHandler(streamHandler)
-        # ---
-
-        self.path = path
-
+        self.path = os.path.abspath(path)
+        log.info("absolute path: %s", self.path)
         filename_w_ext = os.path.basename(self.path)
-        self.log.info("basename: %s", filename_w_ext)
         filename, file_extension = os.path.splitext(filename_w_ext)
         self.uuid = filename
-        self.log.info("filename: %s", filename)
+        log.info("uuid: %s", filename)
+
+        self.__readStats()
         
 
-
-
-    def readStats(self):
-
+    def __readStats(self):
+        """Reads json statistics from file"""
         try:
             with open(self.path, "r") as f:
                 self.statistics =  f.read()
-                self.log.info("Correctly readed %d characters from file %s",
+                log.info("Correctly readed %d characters from file %s",
                         len(self.statistics), self.path)
         except Exception as e:
-            self.log.error("Errore lettura statistiche: %s", e)
+            log.error("Errore lettura statistiche: %s", e)
 
 
 if __name__ == "__main__":
@@ -48,7 +46,6 @@ if __name__ == "__main__":
 
     print("abspath", player.path)
 
-    player.readStats()
 
     print(player.statistics)
 
